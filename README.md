@@ -11,3 +11,4 @@ Scope of improvement:
 - Use dipendency injection (Dagger or hilt)
 - Pull-to-refresh functionality
 - Test cases
+- Error Handling
