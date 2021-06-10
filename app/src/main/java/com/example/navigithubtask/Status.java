@@ -1,6 +1,5 @@
 package com.example.navigithubtask;
 
 public enum Status {
-    IDLE, LOADING
-
+    IDLE, LOADING, EOF
 }

@@ -11,7 +11,7 @@ public class GithubServiceProvider {
     public static GithubService getGithubService() {
         if (sGithubService == null) {
             HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-            interceptor.setLevel(HttpLoggingInterceptor.Level.NONE);
+            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
             httpClient.addInterceptor(interceptor);
             Retrofit retrofit = new Retrofit.Builder()
