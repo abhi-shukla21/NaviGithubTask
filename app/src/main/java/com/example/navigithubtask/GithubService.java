@@ -11,10 +11,8 @@ import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
 
 public interface GithubService {
-
     @GET("repos/{user}/{repo}/pulls")
     Call<List<PullRequest>> getPullRequests(@Path("user") String user,
                                             @Path("repo") String repo,
                                             @QueryMap Map<String, String> options);
-
 }

@@ -1,15 +1,14 @@
 package com.example.navigithubtask;
 
-import android.app.Application;
+import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.navigithubtask.entity.PullRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -17,7 +16,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class PullRequestsViewModel extends ViewModel {
-    private MutableLiveData<List<PullRequest>> prLiveData = new MutableLiveData<>();
+    private static final String TAG = PullRequestsViewModel.class.getSimpleName();
+    private MutableLiveData<List<PullRequest>> prLiveData = new MutableLiveData<>(new ArrayList<>());
     private MutableLiveData<Status> statusLiveData = new MutableLiveData<>(Status.IDLE);
     private GithubRepository githubRepository;
     private String user;
@@ -25,8 +25,8 @@ public class PullRequestsViewModel extends ViewModel {
     private int pageSize = 30;
     private int pageNum = 1;
 
-    public PullRequestsViewModel(GithubRepository githubRepository, String user, String repo) {
-        this.githubRepository = githubRepository;
+    public PullRequestsViewModel(String user, String repo) {
+        this.githubRepository = new GithubRepository(GithubServiceProvider.getGithubService());
         this.user = user;
         this.repo = repo;
     }
@@ -42,7 +42,7 @@ public class PullRequestsViewModel extends ViewModel {
     public void fetchNext() {
         if(statusLiveData.getValue() == Status.IDLE) {
             statusLiveData.postValue(Status.LOADING);
-            githubRepository.getPullClosedRequests(user, repo, pageSize, pageNum, callback);
+            githubRepository.getClosedPullRequests(user, repo, pageSize, pageNum, callback);
         }
     }
 
@@ -51,6 +51,7 @@ public class PullRequestsViewModel extends ViewModel {
         public void onResponse(Call<List<PullRequest>> call, Response<List<PullRequest>> response) {
             if (response.isSuccessful()) {
                 prLiveData.getValue().addAll(response.body());
+                Log.d(TAG, "Response count: " + response.body().size());
                 prLiveData.postValue(prLiveData.getValue());
                 pageNum++;
             }
