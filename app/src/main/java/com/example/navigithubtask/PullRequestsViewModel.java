@@ -54,14 +54,18 @@ public class PullRequestsViewModel extends ViewModel {
                 Log.d(TAG, "Response count: " + response.body().size());
                 prLiveData.postValue(prLiveData.getValue());
                 pageNum++;
+                if(response.body().isEmpty()){
+                    statusLiveData.postValue(Status.EOF);
+                }else{
+                    statusLiveData.postValue(Status.IDLE);
+                }
             }
-            statusLiveData.postValue(Status.IDLE);
         }
 
         @Override
         public void onFailure(Call<List<PullRequest>> call, Throwable t) {
             // TODO show error
-            statusLiveData.postValue(Status.IDLE);
+            statusLiveData.postValue(Status.EOF);
         }
     };
 }

@@ -1,5 +1,6 @@
 package com.example.navigithubtask;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -12,15 +13,21 @@ import android.util.Log;
 
 import com.example.navigithubtask.entity.PullRequest;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private final String USER = "abhi-shukla21"; // Change this to fetch PRs for a different user
-    private final String REPO = "NaviGithubTask"; // Change this to fetch PRs for a different repo
+    private final String USER = "octocat"; // Change this to fetch PRs for a different user
+    private final String REPO = "hello-world"; // Change this to fetch PRs for a different repo
 
     private PullRequestsViewModel pullRequestsViewModel;
+    private LiveData<List<PullRequest>> pullRequestLiveData;
+    private LiveData<Status> statusLiveData;
+    private LinearLayoutManager layoutManager;
+    private RecyclerView recyclerView;
 
 
     @Override
@@ -29,20 +36,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         pullRequestsViewModel = new ViewModelProvider(this, new PullRequestViewModelFactory(USER, REPO)).get(PullRequestsViewModel.class);
-        RecyclerView recyclerView = findViewById(R.id.rv_pulls);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView = findViewById(R.id.rv_pulls);
+        layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        LiveData<List<PullRequest>> pullRequestLiveData = pullRequestsViewModel.getPullRequestLiveData();
-        LiveData<Status> statusLiveData = pullRequestsViewModel.getStatusLiveData();
+        pullRequestLiveData = pullRequestsViewModel.getPullRequestLiveData();
+        statusLiveData = pullRequestsViewModel.getStatusLiveData();
         PullRequestsAdapter adapter = new PullRequestsAdapter(pullRequestLiveData.getValue());
         recyclerView.setAdapter(adapter);
         statusLiveData.observe(this, new Observer<Status>() {
             @Override
             public void onChanged(Status status) {
                 if (status == Status.LOADING) {
-                    // TODO show progress bar
-                } else if (status == Status.IDLE) {
-                    // TODO hide progress bar
+                    adapter.showLoading();
+                } else if (status == Status.IDLE || status == Status.EOF) {
+                    adapter.hideLoading();
                 }
             }
         });
@@ -57,6 +64,21 @@ public class MainActivity extends AppCompatActivity {
         if (pullRequestLiveData.getValue().isEmpty()) {
             pullRequestsViewModel.fetchNext();
         }
+        initSrcollListener();
+    }
 
+    private void initSrcollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull @NotNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (statusLiveData.getValue() == Status.IDLE) {
+                    if (layoutManager != null && layoutManager.findLastCompletelyVisibleItemPosition()
+                            == recyclerView.getAdapter().getItemCount() - 3) {
+                        pullRequestsViewModel.fetchNext();
+                    }
+                }
+            }
+        });
     }
 }
