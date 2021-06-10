@@ -1,5 +1,6 @@
 package com.example.navigithubtask;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,11 +89,12 @@ public class PullRequestsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
 
         public void bind(PullRequest pullRequest) {
+            Context ctx = itemView.getContext();
             title.setText(pullRequest.getTitle());
-            created.setText(pullRequest.getCreatedAt());
-            closed.setText(pullRequest.getClosedAt());
+            created.setText(ctx.getString(R.string.created, DateTimeUtil.getPrettyTime(pullRequest.getCreatedAt())));
+            closed.setText(ctx.getString(R.string.closed, DateTimeUtil.getPrettyTime(pullRequest.getClosedAt())));
             author.setText(pullRequest.getUser().getName());
-            Glide.with(itemView.getContext()).load(pullRequest.getUser().getPhotoUrl()).centerCrop().into(authorAvatar);
+            Glide.with(ctx).load(pullRequest.getUser().getPhotoUrl()).centerCrop().into(authorAvatar);
         }
     }
 
