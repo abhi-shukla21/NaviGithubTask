@@ -9,4 +9,5 @@ Scope of improvement:
 - Use shimmer effect for loading state
 - Use Pagination library 
 - Use dipendency injection (Dagger or hilt)
+- Pull-to-refresh functionality
 - Test cases
