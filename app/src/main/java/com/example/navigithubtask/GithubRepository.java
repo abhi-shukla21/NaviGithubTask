@@ -17,7 +17,7 @@ public class GithubRepository {
         this.githubService = githubService;
     }
 
-    public void getPullClosedRequests(String user, String repo, int perPage, int pageNum, Callback<List<PullRequest>> callback) {
+    public void getClosedPullRequests(String user, String repo, int perPage, int pageNum, Callback<List<PullRequest>> callback) {
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("state", "closed");
         queryParams.put("per_page", String.valueOf(perPage));
